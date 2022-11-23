@@ -663,31 +663,12 @@ namespace ManagedCodeGen
                 return dasmArgs;
             }
 
-            void InstallBaseJit()
-            {
-                string existingJitPath = Path.Combine(m_config.CoreRoot, m_testJitName);
-                string backupJitPath = Path.Combine(m_config.CoreRoot, "backup-" + m_testJitName);
-                string testJitPath = Path.Combine(m_config.BasePath, m_testJitName);
-                if (File.Exists(existingJitPath))
-                {
-                    if (m_config.Verbose)
-                    {
-                        Console.WriteLine($"Saving off existing jit: {existingJitPath} ==> {backupJitPath}");
-                    }
-                    File.Copy(existingJitPath, backupJitPath, true);
-                }
-                if (m_config.Verbose)
-                {
-                    Console.WriteLine($"Copying in the test jit: {testJitPath} ==> {existingJitPath}");
-                }
-                File.Copy(testJitPath, existingJitPath, true);
-            }
-
-            void InstallDiffJit()
+            // Back up the existing clrjit on core root directory and replace it with the the test clrjit.
+            void InstallJit(string testBasePath)
             {
                 string exitingJitPath = Path.Combine(m_config.CoreRoot, m_testJitName);
                 string backupJitPath = Path.Combine(m_config.CoreRoot, "backup-" + m_testJitName);
-                string testJitPath = Path.Combine(m_config.DiffPath, m_testJitName);
+                string testJitPath = Path.Combine(testBasePath, m_testJitName);
                 if (File.Exists(exitingJitPath))
                 {
                     if (m_config.Verbose)
@@ -727,7 +708,7 @@ namespace ManagedCodeGen
                 {
                     try
                     {
-                        InstallBaseJit();
+                        InstallJit(m_config.BasePath);
                         foreach (var assemblyInfo in assemblyWorkList)
                         {
                             StartDasmWorkOne(DasmWorkKind.Base, commandArgs, "base", m_config.BasePath, assemblyInfo);
@@ -745,7 +726,7 @@ namespace ManagedCodeGen
                 {
                     try
                     {
-                        InstallDiffJit();
+                        InstallJit(m_config.DiffPath);
                         foreach (var assemblyInfo in assemblyWorkList)
                         {
                             StartDasmWorkOne(DasmWorkKind.Diff, commandArgs, "diff", m_config.DiffPath, assemblyInfo);
