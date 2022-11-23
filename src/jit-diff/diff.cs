@@ -677,11 +677,14 @@ namespace ManagedCodeGen
                     }
                     File.Copy(exitingJitPath, backupJitPath, true);
                 }
-                if (m_config.Verbose)
+                if (!exitingJitPath.Equals(testJitPath))
                 {
-                    Console.WriteLine($"Copying in the test jit: {testJitPath} ==> {exitingJitPath}");
+                    if (m_config.Verbose)
+                    {
+                        Console.WriteLine($"Copying in the test jit: {testJitPath} ==> {exitingJitPath}");
+                    }
+                    File.Copy(testJitPath, exitingJitPath, true);
                 }
-                File.Copy(testJitPath, exitingJitPath, true);
             }
 
             void RestoreDefaultJit()
